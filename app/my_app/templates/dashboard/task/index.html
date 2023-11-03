@@ -1,0 +1,16 @@
+{% extends "dashboard/master.html" %}
+
+{% block title%} Index Task  {%endblock%}
+
+{% block content %}
+     <li><a href="{{ url_for('task.create')}}" >Create</a></li>
+    <ul> 
+        {% for t in tasks %}
+            <li>{{t}}</li>
+            <li><a href="{{ url_for('task.update',id=loop.index0)}}" >Edit</a></li>
+            <li><a href="{{ url_for('task.delete',id=loop.index0)}}" >Delete</a></li>
+           
+        {%endfor%}
+    </ul>
+Content!!
+{%endblock%}
