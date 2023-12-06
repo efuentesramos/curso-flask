@@ -1,13 +1,21 @@
 from flask import Flask, render_template, request
-
-from my_app.tasks.controller import taskRoute
+from flask_sqlalchemy import SQLAlchemy
 
 from my_app.config import DevConfig
 
 app = Flask(__name__)
-app.register_blueprint(taskRoute)
+
 
 app.config.from_object(DevConfig)
+
+db=SQLAlchemy(app)
+
+from my_app.tasks.controller import taskRoute
+
+app.register_blueprint(taskRoute)
+
+with app.app_context():
+    db.create_all()
 
 @app.route('/')
 def hello_world():
