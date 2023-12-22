@@ -1,21 +1,19 @@
+import os
 from flask import Blueprint,render_template,request,redirect,url_for
 
-#from my_app.tasks.models import Task
+from werkzeug.utils import secure_filename
+
 from my_app.tasks import operations
+from my_app.tasks import forms
+
+from my_app import config,app
 
 taskRoute = Blueprint('task',__name__,url_prefix='/tasks')
 
-task_list =['task 1','task 2','task 3']
-
 @taskRoute.route('/')
 def index():
-    #operations.create("Task_prueba")
-    #operations.update(1,"Task actualizada")
-    #print(operations.getById(1).name)
-    #print(operations.getAll())
-    #operations.delete(1)
-    print(operations.pagination().items)
-    return render_template('dashboard/task/index.html', tasks=task_list)
+    
+    return render_template('dashboard/task/index.html', tasks=operations.getAll())
 
 @taskRoute.route('/<int:id>')
 def show(id:int):
@@ -23,24 +21,39 @@ def show(id:int):
 
 @taskRoute.route('/delete/<int:id>')
 def delete(id:int):
-    del task_list[id]
-
+    operations.delete(id)
     return redirect(url_for('task.index'))
 
 @taskRoute.route('/create',methods=('GET','POST'))
 def create():
-    task= request.form.get('task')
-    if task!=None:
-        task_list.append(task)
-        return redirect(url_for('task.index'))
+    #task= request.form.get('task')
+    form = forms.Task()
+
+    if form.validate_on_submit():
+        print(form.name.data)
+        operations.create(form.name.data)
         
-    return render_template('dashboard/task/create.html')
+    return render_template('dashboard/task/create.html',form=form)
 
 @taskRoute.route('/update/<int:id>',methods=['GET','POST'])
 def update(id:int):
 
-    task= request.form.get('task')
-    if task!=None:
-        task_list[id]= task
+    task= operations.getById(id,True)
+    form = forms.Task()
 
-    return render_template('dashboard/task/update.html')
+    if request.method == 'GET':
+        form.name.data = task.name
+
+    if form.validate_on_submit():
+        operations.update(id, form.name.data)
+        print(form.file.data)
+        print(form.file.data.filename)
+        f= form.file.data
+        if f and config.allowed_extensions_files(f.filename):
+            
+            filename=secure_filename(f.filename)
+            f.save(os.path.join(app.instance_path, app.config['UPLOAD_FOLDER'],filename))
+        return redirect(url_for('task.index'))
+        
+
+    return render_template('dashboard/task/update.html',form=form , id=id)
