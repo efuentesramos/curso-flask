@@ -6,6 +6,20 @@
     <title>{%block title%} {%endblock%} - Flask</title>
 </head>
 <body>
+    <!--flash category_filter=['info'] -->
+    <div>
+        {%with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages%}
+                        <li>{{message}}</li>
+                    {%endfor%}
+                </ul>
+            {% endif %}
+        {%endwith%}
+    </div>
+
+
 
     <div>
         {%block content%}
