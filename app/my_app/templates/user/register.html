@@ -1,0 +1,21 @@
+{% extends "master.html" %}
+
+{% block title%} Register User  {%endblock%}
+
+{% block content %}
+    <form action="" method="post">
+        {{form.csrf_token}}
+
+        {{form.username.label}}
+        {{form.username}}
+        
+        {{form.password.label}}
+        {{form.password}}
+
+        {{form.confirm.label}}
+        {{form.confirm}}
+
+        <button type = "submit"> Send</button>
+    </form>
+
+{%endblock%}

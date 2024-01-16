@@ -1,6 +1,8 @@
 import os
 from flask import Blueprint,render_template,request,redirect,url_for,flash
 
+from flask_login import login_required
+
 from werkzeug.utils import secure_filename
 
 from my_app.tasks import operations,forms,models
@@ -13,15 +15,18 @@ from my_app import config,app
 taskRoute = Blueprint('task',__name__,url_prefix='/tasks')
 
 @taskRoute.route('/')
+@login_required
 def index():
     
     return render_template('dashboard/task/index.html', tasks=operations.getAll())
 
 @taskRoute.route('/<int:id>')
+@login_required
 def show(id:int):
     return'Show '+str(id)
 
 @taskRoute.route('/delete/<int:id>')
+@login_required
 def delete(id:int):
     task=operations.getById(id,True)
     operations.delete(task.id)
@@ -29,6 +34,7 @@ def delete(id:int):
     return redirect(url_for('task.index'))
 
 @taskRoute.route('/create',methods=('GET','POST'))
+@login_required
 def create():
     #task= request.form.get('task')
     form = forms.Task()
@@ -41,6 +47,7 @@ def create():
     return render_template('dashboard/task/create.html',form=form)
 
 @taskRoute.route('/update/<int:id>',methods=['GET','POST'])
+@login_required
 def update(id:int):
 
     task= operations.getById(id,True)
@@ -80,6 +87,7 @@ def update(id:int):
     return render_template('dashboard/task/update.html',form=form,formTag=formTag,formTagRemove=formTagRemove, task=task , id=id)
 
 @taskRoute.route('/<int:id>/tag/add', methods=['POST'])
+@login_required
 def tagAdd(id:int):
     formTag = forms.TaskTagAdd()
     formTag.tag.choices = [(t.id, t.name) for t in models.Tag.query.all()]
@@ -91,6 +99,7 @@ def tagAdd(id:int):
 
 
 @taskRoute.route('/<int:id>/tag/remove', methods=['POST'])
+@login_required
 def tagRemove(id:int):
     formTag = forms.TaskTagRemove()
     
